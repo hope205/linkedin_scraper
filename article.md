@@ -211,7 +211,7 @@ async def listing_handler(context: PlaywrightCrawlingContext) -> None:
 
 ## Creating your Application
 
-For this project, we will be using Streamlit for the web application. Before we proceed, we are going to create a new file named `app.py` in your project directory. In addition, ensure you have Streamlit installed in your global Python environment before proceeding with this section.
+For this project, we will be using Streamlit for the web application. Before we proceed, we are going to create a new file named `app.py` in your project directory. In addition, ensure you have  [Streamlit](https://docs.streamlit.io/get-started/installation) installed in your global Python environment before proceeding with this section.
 
 
 ```
