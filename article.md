@@ -113,8 +113,6 @@ async def main(title: str, location: str, data_name: str) -> None:
 
  
 
-The main function takes in the title, location and data_name parameters. Furthermore, we used the [Urllib](https://docs.python.org/3/library/urllib.html) library to encode the base URL and its parameters into a format that can be used to make requests to the web. 
-
 Now that we have encoded the URL, the next step for us is to adjust the generated router to handle linkedin job postings. 
 
 
