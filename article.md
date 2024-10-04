@@ -14,7 +14,7 @@ By the end of this tutorial, you’ll have had a fully functional web applicatio
 ![alt_text](images/image1.png "image_tooltip")
 
 
-Let’s get started
+Let's start
 
 
 ## Prerequisites
@@ -36,15 +36,14 @@ After installation, Crawlee for Python will create a boilerplate code for you. R
 ```
 Poetry install
 ```
-
-
+We are going to begin editing the files provided to us by crawlee inorder for us to build our scraper
 
 ## Building the LinkedIn Scraper using Crawlee for Python
 
-In this section, we are going to be building the scraper using the Crawlee Python package. To learn more about Crawlee, check out their [documentation](https://crawlee.dev/python/docs/quick-start).
+In this section, we are going to be building the scraper using theCrawlee for Python package. To learn more about Crawlee, check out their [documentation](https://crawlee.dev/python/docs/quick-start).
+
 
 				
-
 
 ### Inspecting the LinkedIn job Search Page
 
@@ -52,11 +51,10 @@ Open LinkedIn on your web browser and sign out from the website (if you already 
 
 
 
-
 ![alt_text](images/image2.png "image_tooltip")
 
 
-Navigate to the jobs section, search for a job and location of your choice; copy the Uniform Resource Locator (URL).
+Navigate to the jobs section, search for a job and location of your choice; copy the URL.
 
 
 
@@ -94,8 +92,14 @@ async def main(title: str, location: str, data_name: str) -> None:
         "position": "1",
         "pageNum": "0"
     }
-    encoded_params = urllib.parse.urlencode(params)
-    encoded_url = f"{base_url}?{encoded_params}"
+
+    encoded_params = urlencode(params)
+    
+    # Encode parameters into a query string
+    query_string = '?' + encoded_params
+
+    # Combine base URL with the encoded query string
+    encoded_url = urljoin(base_url, "") + query_string
 
     # Initialize the crawler
     crawler = PlaywrightCrawler(
@@ -111,9 +115,10 @@ async def main(title: str, location: str, data_name: str) -> None:
 ```
 
 
- 
 
-Now that we have encoded the URL, the next step for us is to adjust the generated router to handle linkedin job postings. 
+
+Now that we have encoded the URL, the next step for us is to adjust the generated router to handle LinkedIn job postings. 
+ 
 
 
 ### Routing your Crawler
@@ -132,7 +137,7 @@ The `default_handler` handles the start URL
 
 The `job_listing` handler extracts the individual job details.
 
-The Playwright crawler is going to crawl through the job posting page and extract the links to all job postings on the page.
+Playwright crawler is going to crawl through the job posting page and extract the links to all job postings on the page.
 
 
 
@@ -163,11 +168,11 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
 
 Now that we have the job listings, the next step is to scrape their details.
 
-We'II extract each job’s title, company's name, time of posting and the link to the job post. Open your dev tools to extract each element Xpath.
+We'II extract each job’s title, company's name, time of posting and the link to the job post. Open your dev tools to extract each element using its CSS selector. 
 
 
 
-![alt_text](images/image5.png "image_tooltip")
+![alt_text](images/image9.png "image_tooltip")
 
 
 After scraping each of the listings, we'll remove special characters from the text to make it clean and push the data to local storage using `context.push_data` function.
@@ -180,15 +185,17 @@ async def listing_handler(context: PlaywrightCrawlingContext) -> None:
 
     await context.page.wait_for_load_state('load')
 
-    job_title = await context.page.locator('//*[@id="main-content"]/section[1]/div/section[2]/div/div[1]/div/h1').text_content()
+    job_title = await context.page.locator('div.top-card-layout__entity-info h1.top-card-layout__title').text_content()
+   
+    company_name  = await context.page.locator('span.topcard__flavor a').text_content()   
 
-    company_name  = await context.page.locator('//*[@id="main-content"]/section[1]/div/section[2]/div/div[1]/div/h4/div[1]/span[1]/a').text_content()
-
-    time_of_posting= await context.page.locator('//*[@id="main-content"]/section[1]/div/section[2]/div/div[1]/div/h4/div[2]/span').text_content()
+    time_of_posting= await context.page.locator('div.topcard__flavor-row span.posted-time-ago__text').text_content()
 
 
     await context.push_data(
         {
+            # we are maing use of regex to remove special characters for the extracted texts
+
             'title': re.sub(r'[\s\n]+', '', job_title),
             'Company name': re.sub(r'[\s\n]+', '', company_name),
             'Time of posting': re.sub(r'[\s\n]+', '', time_of_posting),
@@ -214,7 +221,7 @@ st.title("LinkedIn Job Scraper")
 with st.form("scraper_form"):
     title = st.text_input("Job Title", value="backend developer")
     location = st.text_input("Job Location", value="newyork")
-    data_name = st.text_input("Output File Name", value="backend_job")
+    data_name = st.text_input("Output File Name", value="backend_jobs")
 
     submit_button = st.form_submit_button("Run Scraper")
 
