@@ -36,7 +36,9 @@ After installation, Crawlee for Python will create a boilerplate code for you. R
 ```
 Poetry install
 ```
-We are going to begin editing the files provided to us by crawlee inorder for us to build our scraper
+
+We are going to begin editing the files provided to us by crawlee in order for us to build our scraper
+
 
 ## Building the LinkedIn Scraper using Crawlee for Python
 
@@ -103,6 +105,7 @@ async def main(title: str, location: str, data_name: str) -> None:
 
     # Initialize the crawler
     crawler = PlaywrightCrawler(
+
         request_handler=router,
     )
 
@@ -114,10 +117,54 @@ async def main(title: str, location: str, data_name: str) -> None:
     await crawler.export_data(output_file)
 ```
 
+Before we test the application, we need to make a little modification to the `__main__` file in order for it to accommodate the command line arguments. 
+
+
+```
+import asyncio
+import argparse
+
+from .main import main
+
+def get_args():
+    # ArgumentParser object to capture command-line arguments
+    parser = argparse.ArgumentParser(description="Crawl LinkedIn job listings")
+
+
+    # Define the arguments
+    parser.add_argument("--title", type=str, required=True, help="Job title")
+    parser.add_argument("--location", type=str, required=True, help="Job location")
+    parser.add_argument("--data_name", type=str, required=True, help="Name for the output CSV file")
+
+
+    # Parse the arguments
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = get_args()
+    # Run the main function with the parsed command-line arguments
+    asyncio.run(main(args.title, args.location, args.data_name))
+```
+
+Now coming to `routes.py`, let's remove:
+
+```
+await context.enqueue_links()
+
+```
+
+
+Navigate you to `linkedin-scraper` directory and run this command:
+
+```
+poetry run python -m linkedin-scraper --title "Backend Developer"  --location "Canada" --data_name "backend jobs"
+
+```
 
 
 
-Now that we have encoded the URL, the next step for us is to adjust the generated router to handle LinkedIn job postings. 
+
+Now that we have encoded the URL and tested the crawler, the next step for us is to adjust the generated router to handle LinkedIn job postings. 
  
 
 
@@ -252,35 +299,6 @@ The Streamlit web application takes in the inputs from the user and makes use of
 
 
 ## Testing your App
-
-Before we test the application, we need to make a little modification to the `__main__` file in order for it to accommodate the command line arguments. 
-
-
-```
-import asyncio
-import argparse
-
-from .main import main
-
-def get_args():
-    # ArgumentParser object to capture command-line arguments
-    parser = argparse.ArgumentParser(description="Crawl LinkedIn job listings")
-
-
-    # Define the arguments
-    parser.add_argument("--title", type=str, required=True, help="Job title")
-    parser.add_argument("--location", type=str, required=True, help="Job location")
-    parser.add_argument("--data_name", type=str, required=True, help="Name for the output CSV file")
-
-
-    # Parse the arguments
-    return parser.parse_args()
-
-if __name__ == '__main__':
-    args = get_args()
-    # Run the main function with the parsed command-line arguments
-    asyncio.run(main(args.title, args.location, args.data_name))
-```
 
 
 We will start the Streamlit application by running this code in the terminal:
